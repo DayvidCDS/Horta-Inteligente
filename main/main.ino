@@ -1,14 +1,8 @@
-/*
-* 11/10/2017 
-* Desenvolvido por DayvidCDS
-* Função principal, com a declaração das variáveis e chamada das funções necessárias
-*/
-
 // Incluindo bibliotecas necessárias para o funcionamento do programa
+#include "display.cpp";
 #include "rele.cpp";
-#include <DHT.h>
-#include <Wire.h>
-#include <LiquidCrystal_I2C.h>
+#include "sensor_de_luz.cpp";
+#include "sensor_de_temp_umi.cpp";
 
 // Criando variáveis para o "contador global"
 unsigned long tempoPassado = 0;
@@ -24,51 +18,19 @@ unsigned long tempoDeAmostra = 30;
 
 // Instanciando objetos
 Rele bomba(PIN_BOMBA, NIVEL_LOGICO_RELE_BOMBA); // Instanciando o rele da bomba
-DHT dht(DHTPIN, DHTTYPE);
+DHT dhtParam(DHTPIN, DHTTYPE);
+TempUmi dht(dhtParam); // Passando sensor DHT como parâmetro para o nosso objeto 
 
-LiquidCrystal_I2C lcd(0x27, 16, 2); // Instanciando Display LCD
-
-void lerTempUmi();
+LiquidCrystal_I2C lcdParam(0x3F, 16, 2); // Instanciando Display LCD
+Display lcd(lcdParam); // Passando como parâmetro o objeto lcdParam no objeto lcd
 
 void setup() {
-  lcd.begin(); // Inicializa o display LCD
-  lcd.setBacklight(LOW); // Liga a luz de fundo do LCD
-  lcd.setCursor(2, 0);
-  lcd.clear();
-  lcd.print("Iniciando...");
-  delay(500);
-  Serial.begin(9600);
-  Serial.println("DHTxx test!");
+  lcd.iniciar();
   dht.begin();
   pinMode(PIN_BOMBA, OUTPUT);
 }
 
 void loop() {
-  /*
-  rele1.ligar();
-  delay(1000);
-  rele1.desligar();
-  delay(1000);
-  */
-  lerTempUmi();
-  delay(1500);
-}
-
-void lerTempUmi() {
-  // A leitura da temperatura e umidade pode levar 250ms
-  float h = dht.readHumidity();
-  float t = dht.readTemperature();
-  
-  if (isnan(t) || isnan(h)) { // testa se o retorno é valido
-    Serial.println("Falha na leitura do DHT");
-  } 
-  else {
-    Serial.print("Umidade: ");
-    Serial.print(h);
-    Serial.print(" %t");
-    Serial.print("Temperatura: ");
-    Serial.print(t);
-    Serial.println(" *C");
-  }
+  // Aqui só implementa a lógica do sistema
 }
 

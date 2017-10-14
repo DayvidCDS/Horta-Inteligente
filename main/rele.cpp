@@ -1,9 +1,3 @@
-/*
-* 11/10/2017 
-* Desenvolvido por DayvidCDS
-* Backend com métodos para acionamento de reles via objeto, codificado em C++
-*/
-
 #include <Arduino.h>
 
 class Rele { // Objeto rele
