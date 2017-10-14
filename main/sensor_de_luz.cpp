@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-class Ldr { // Objeto rele
+class Ldr { // Objeto ldr
   private:
     unsigned char pin; // Guarda o pino em que o LDR estará conectado (Usar entradas analógicas)
     unsigned char quantLuz; // Guarda o estado atual do rele (HIGH/LOW)
