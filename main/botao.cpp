@@ -7,10 +7,10 @@ class Botao { // Objeto botao
     Botao(const unsigned char pin, const unsigned char acionamento) { // Construtor, Método iniciado quando se cria a variável (Objeto)
       this->pin = pin; // Setando variável pin
     }
-    boolean ler() { // Ligando rele
+    boolean ler() {
       if (digitalRead(this->pin)) {
         return true;
       }
-        return false;
+      return false;
     }
 };

@@ -3,6 +3,7 @@
 class Ldr { // Objeto ldr
   private:
     unsigned char pin; // Guarda o pino em que o LDR estará conectado (Usar entradas analógicas)
+    unsigned char valor;
   public:
     Ldr(const unsigned char pin) { // Construtor, Método iniciado quando se cria a variável (Objeto)
       this->pin = pin; // Setando variável pin
@@ -15,6 +16,7 @@ class Ldr { // Objeto ldr
       }      
       anaValue = anaValue/10;  
       anaValue = map(anaValue, 1023, 0, 0, 100);
+      this->valor = anaValue;
       return anaValue;  
     }
 };
