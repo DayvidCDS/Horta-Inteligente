@@ -26,4 +26,7 @@ class Solo { // Objeto Sensor de Umidade do Solo
       this->valor = anaValue;
       return anaValue;
     }
+    unsigned char getValor() {
+      return this->valor;
+    }
 };

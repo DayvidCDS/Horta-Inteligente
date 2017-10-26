@@ -39,4 +39,10 @@ class TempUmi { // Objeto DHT (modificado)
       this->umi = h;
       return 0;
     }
+    float getTemp() {
+      return this->temp;
+    }
+    float getUmi() {
+      return this->umi;
+    }
 };

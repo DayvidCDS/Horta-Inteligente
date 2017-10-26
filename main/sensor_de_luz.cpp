@@ -19,4 +19,7 @@ class Ldr { // Objeto ldr
       this->valor = anaValue;
       return anaValue;  
     }
+    unsigned char getValor() {
+      return this->valor;
+    }
 };

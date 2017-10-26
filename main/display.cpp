@@ -14,29 +14,37 @@ class Display { // Objeto display
     Display(LiquidCrystal_I2C *lcd) {
       this->lcd = lcd;
     }
-    void iniciar(const int x, const int y) const {
-      this->lcd->begin(); // Inicializa o display LCD
-      this->lcd->setBacklight(this->luzFundo); // Liga a luz de fundo do LCD
-      this->lcd->setCursor(x, y);
-      this->lcd->clear();
-    }
     void iniciar() const {
       this->lcd->begin(); // Inicializa o display LCD
       this->lcd->setBacklight(this->luzFundo); // Liga a luz de fundo do LCD
       this->lcd->setCursor(0, 0);
       this->lcd->clear();  
     }
-    void imprimir(const byte msg) const {
+    void imprimir(const String msg) const {
+      this->apagarTudo();
       this->lcd->setCursor(0, 0);
       this->lcd->print(msg);
     }
-    void imprimir(const byte msg, const int x, const int y) const {
+    void imprimir(const int msg) const {
+      this->apagarTudo();
+      this->lcd->setCursor(0, 0);
+      this->lcd->print(msg);
+    }
+    void imprimir(const String msg, const int x, const int y) const {
+      this->lcd->setCursor(x, y);
+      this->lcd->print(msg);
+    }
+    void imprimir(const float msg, const int x, const int y) const {
+      this->lcd->setCursor(x, y);
+      this->lcd->print(msg);
+    }
+    void imprimir(const int msg, const int x, const int y) const {
       this->lcd->setCursor(x, y);
       this->lcd->print(msg);
     }
     void apagarTudo() {
       this->lcd->clear();
-      this->lcd->setCursor(2, 0);
+      this->lcd->setCursor(0, 0);
     }
     void setLuzFundo(boolean estado) {
       this->luzFundo = estado;
