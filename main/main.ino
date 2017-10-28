@@ -40,8 +40,8 @@ const unsigned long tempoDeAmostra = 30;
 #define SOLO_SECO 40
 #define SOLO_UMIDO 60
 
-#define PIN_BOTAO_LER_SENSORES 12 // Modo interrupção
-#define PIN_BOTAO_BOMBA 9
+//#define PIN_BOTAO_LER_SENSORES 12 // Modo interrupção
+//#define PIN_BOTAO_BOMBA 9
 
 // Instanciando objetos
 
@@ -88,7 +88,7 @@ void setup() {
   pinMode(SENSOR_UMI_SOLO3, INPUT);
   pinMode(PIN_BOMBA, OUTPUT);
   pinMode(PIN_SOLENOIDE1, OUTPUT);
-  pinMode(PIN_BOTAO_LER_SENSORES, INPUT_PULLUP);
+  //pinMode(PIN_BOTAO_LER_SENSORES, INPUT_PULLUP);
   //debouncer.attach(PIN_BOTAO_LER_SENSORES);
   //debouncer.interval(10); // Seta o intervalo de trepidação;
   //debouncer1.attach(PIN_BOTAO_BOMBA);
@@ -129,8 +129,8 @@ void showDisplay() {
 
 void lerBotoes() {
   int value;
-  debouncer.update(); // Executa o algorítimo de tratamento;
-  value = debouncer.read(); // Lê o valor tratado do botão;
+  //debouncer.update(); // Executa o algorítimo de tratamento;
+//  value = debouncer.read(); // Lê o valor tratado do botão;
   if (value == LOW) {
     lcd.apagarTudo();
     lcd.imprimir("TA:    UA:  ", 0, 0);
@@ -143,8 +143,8 @@ void lerBotoes() {
     estadoAnterior = !estadoAnterior;
     return;
   }
-  debouncer1.update(); // Executa o algorítimo de tratamento;
-  value = debouncer1.read();
+ // debouncer1.update(); // Executa o algorítimo de tratamento;
+  //value = debouncer1.read();
   if (value == LOW) {
     agitarSolucao();
     estadoAnterior = !estadoAnterior;
