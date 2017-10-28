@@ -5,7 +5,7 @@
 #include "sensor_de_luz.cpp";
 #include "sensor_de_temp_umi.cpp";
 #include "sensor_umi_solo.cpp";
-#include <Bounce2.h>
+//#include <Bounce2.h>
 
 // Criando variáveis para o "contador"
 
@@ -62,8 +62,8 @@ Solo solo1(SENSOR_UMI_SOLO1, SMS_VCC, SMS_GND);
 Solo solo2(SENSOR_UMI_SOLO2, SMS_VCC, SMS_GND);
 Solo solo3(SENSOR_UMI_SOLO3, SMS_VCC, SMS_GND);
 
-Bounce debouncer = Bounce();
-Bounce debouncer1 = Bounce();
+//Bounce debouncer = Bounce();
+//Bounce debouncer1 = Bounce();
 
 int mediaUmidade = 50;
 boolean estadoAnterior = false;
@@ -89,10 +89,10 @@ void setup() {
   pinMode(PIN_BOMBA, OUTPUT);
   pinMode(PIN_SOLENOIDE1, OUTPUT);
   pinMode(PIN_BOTAO_LER_SENSORES, INPUT_PULLUP);
-  debouncer.attach(PIN_BOTAO_LER_SENSORES);
-  debouncer.interval(10); // Seta o intervalo de trepidação;
-  debouncer1.attach(PIN_BOTAO_BOMBA);
-  debouncer1.interval(10); // Seta o intervalo de trepidação;
+  //debouncer.attach(PIN_BOTAO_LER_SENSORES);
+  //debouncer.interval(10); // Seta o intervalo de trepidação;
+  //debouncer1.attach(PIN_BOTAO_BOMBA);
+  //debouncer1.interval(10); // Seta o intervalo de trepidação;
   delay(1000);
 }
 
@@ -165,7 +165,7 @@ void liberarSolucao() {
       lcd.imprimir("B: 1 P: 1 C: 0", 0, 1);
       bomba.ligar();
       if (tempoBombaLigada >= TEMPO_BOMBA_LIGADA) {
-        lcd.imprimir("TBOMBA >= TTEMPO");
+        //lcd.imprimir("TBOMBA >= TTEMPO");
         int count = 0;
         int mediaAnterior = 0;
         bomba.desligar();
@@ -174,7 +174,7 @@ void liberarSolucao() {
         delay(500);
         quantRepeticoes++;
         while (count <= 3) {
-          lcd.imprimir("Lendo sensores");
+          lcd.imprimir("Lendo sensores..");
           lcd.imprimir(count, 0, 1);
           solo1.ler();
           solo2.ler();
@@ -185,7 +185,7 @@ void liberarSolucao() {
         }
         tempMediaUmidadeSolo = mediaAnterior / 3;
         if (tempMediaUmidadeSolo < (SOLO_SECO + SOLO_UMIDO) / 2) {
-          lcd.imprimir("TSOLO < MEDIA");
+          //lcd.imprimir("TSOLO < MEDIA");
           tempoBombaLigada = 0;
           if (quantRepeticoes >= 2) {
             lcd.imprimir("ERRO LEITURA");
@@ -223,7 +223,7 @@ void agitarSolucao() {
   unsigned long tempo = 0;
   while (tempo != 180) {
     tempo++;
-    delay(100);
+    delay(1000);
   }
   bomba.desligar();
   delay(1000);
