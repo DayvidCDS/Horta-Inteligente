@@ -88,6 +88,7 @@ void setup() {
   pinMode(SENSOR_UMI_SOLO3, INPUT);
   pinMode(PIN_BOMBA, OUTPUT);
   pinMode(PIN_SOLENOIDE1, OUTPUT);
+  pinMode(PIN_SOLENOIDE2, OUTPUT);
   //pinMode(PIN_BOTAO_LER_SENSORES, INPUT_PULLUP);
   //debouncer.attach(PIN_BOTAO_LER_SENSORES);
   //debouncer.interval(10); // Seta o intervalo de trepidação;
