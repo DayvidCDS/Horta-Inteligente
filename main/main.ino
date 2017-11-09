@@ -5,13 +5,13 @@
 #include "sensor_de_luz.cpp";
 #include "sensor_de_temp_umi.cpp";
 #include "sensor_umi_solo.cpp";
-//#include <Bounce2.h>
+#include <Bounce2.h>
 
-// Criando variáveis para o "contador"
+// Criando variáveis para interrupção
 
-unsigned long tempoPassado = 0;
-unsigned long tempoInicial = 0;
-const unsigned long tempoDeAmostra = 30;
+int interruptPin = 2;
+boolean estadoPararTudo = false;
+const int ledSinalizador = 13;
 
 // Definições gerais
 
@@ -62,8 +62,7 @@ Solo solo1(SENSOR_UMI_SOLO1, SMS_VCC, SMS_GND);
 Solo solo2(SENSOR_UMI_SOLO2, SMS_VCC, SMS_GND);
 Solo solo3(SENSOR_UMI_SOLO3, SMS_VCC, SMS_GND);
 
-//Bounce debouncer = Bounce();
-//Bounce debouncer1 = Bounce();
+Bounce debouncerInterrupaoGeral = Bounce();
 
 int mediaUmidade = 50;
 boolean estadoAnterior = false;
@@ -76,6 +75,7 @@ int lerSensores();
 void agitarSolucao();
 void lerBotoes();
 void showDisplay();
+void pararTudo();
 
 void setup() {
   lcd.iniciar();
@@ -89,11 +89,12 @@ void setup() {
   pinMode(PIN_BOMBA, OUTPUT);
   pinMode(PIN_SOLENOIDE1, OUTPUT);
   pinMode(PIN_SOLENOIDE2, OUTPUT);
-  //pinMode(PIN_BOTAO_LER_SENSORES, INPUT_PULLUP);
-  //debouncer.attach(PIN_BOTAO_LER_SENSORES);
-  //debouncer.interval(10); // Seta o intervalo de trepidação;
-  //debouncer1.attach(PIN_BOTAO_BOMBA);
-  //debouncer1.interval(10); // Seta o intervalo de trepidação;
+  pinMode(interruptPin, INPUT_PULLUP);
+  pinMode(ledSinalizador, OUTPUT);
+  attachInterrupt(digitalPinToInterrupt(interruptPin), pararTudo, FALLING);
+  debouncerInterrupaoGeral.attach(interruptPin);
+  debouncerInterrupaoGeral.interval(5);
+  Serial.begin(9600);
   delay(1000);
 }
 
@@ -112,10 +113,19 @@ void loop() {
   }
   else {
     showDisplay();
-    delay(10000);
+    delay(10000); // Tempo de espera para voltar ao inicio do loop
   }
   delay(50);
   //estadoAnterior = !estadoAnterior;
+}
+
+void pararTudo() {
+  estadoPararTudo = !estadoPararTudo;
+  for (int i = 0; i < 100; i++) {
+    digitalWrite(ledSinalizador, HIGH);
+  }
+  digitalWrite(ledSinalizador, LOW);
+  Serial.println(estadoPararTudo);
 }
 
 void showDisplay() {
@@ -128,31 +138,6 @@ void showDisplay() {
   lcd.imprimir(ldr1.getValor(), 12, 1);
 }
 
-void lerBotoes() {
-  int value;
-  //debouncer.update(); // Executa o algorítimo de tratamento;
-//  value = debouncer.read(); // Lê o valor tratado do botão;
-  if (value == LOW) {
-    lcd.apagarTudo();
-    lcd.imprimir("TA:    UA:  ", 0, 0);
-    lcd.imprimir((int)dht.getTemp(), 4, 0);
-    lcd.imprimir((int)dht.getUmi(), 11, 0);
-    lcd.imprimir("MUS:    L:  ", 0, 1);
-    lcd.imprimir(mediaUmidade, 5, 1);
-    lcd.imprimir(ldr1.getValor(), 10, 1);
-    delay(10000);
-    estadoAnterior = !estadoAnterior;
-    return;
-  }
- // debouncer1.update(); // Executa o algorítimo de tratamento;
-  //value = debouncer1.read();
-  if (value == LOW) {
-    agitarSolucao();
-    estadoAnterior = !estadoAnterior;
-    return;
-  }
-}
-
 void liberarSolucao() {
     int tempoBombaLigada = 0;
     int tempMediaUmidadeSolo = 50;
@@ -160,21 +145,29 @@ void liberarSolucao() {
     bomba.desligar();
     delay(500);
     while (true) { // mediaUmidade < SOLO_UMIDO
-      solenoide_plantas.ligar();
+      if (estadoPararTudo) {
+        estadoPararTudo = false;
+        break;
+      }
       lcd.imprimir("liberando sol", 0, 0);
+      solenoide_plantas.ligar();
       delay(1000);
-      lcd.imprimir("B: 1 P: 1 C: 0", 0, 1);
       bomba.ligar();
+      lcd.imprimir("B: 1 C: 0 P: 1", 0, 1);
       if (tempoBombaLigada >= TEMPO_BOMBA_LIGADA) {
         //lcd.imprimir("TBOMBA >= TTEMPO");
         int count = 0;
         int mediaAnterior = 0;
+        if (estadoPararTudo) {
+          estadoPararTudo = false;
+          break;
+        }
         bomba.desligar();
         delay(1000);
         solenoide_plantas.desligar();
         delay(500);
         quantRepeticoes++;
-        while (count <= 3) {
+        while (count < 3) {
           lcd.imprimir("Lendo sensores..");
           lcd.imprimir(count, 0, 1);
           solo1.ler();
@@ -188,7 +181,7 @@ void liberarSolucao() {
         if (tempMediaUmidadeSolo < (SOLO_SECO + SOLO_UMIDO) / 2) {
           //lcd.imprimir("TSOLO < MEDIA");
           tempoBombaLigada = 0;
-          if (quantRepeticoes >= 2) {
+          if (quantRepeticoes >= 3) {
             lcd.imprimir("ERRO LEITURA");
             delay(15000);
             return;
@@ -207,30 +200,34 @@ void liberarSolucao() {
     delay(1000);
     solenoide_plantas.desligar();
     lcd.imprimir("Irrigado!");
-    lcd.imprimir("B: 0 P: 0 C: 0", 0, 1);
+    lcd.imprimir("B: 0 C: 0 P: 0", 0, 1);
     delay(2000);
 }
 
 void agitarSolucao() {
   lcd.imprimir("Agitando sol.");
-  lcd.imprimir("B: 0 P: 0 C: 1", 0, 1);
+  lcd.imprimir("B: 0 C: 1 P: 0", 0, 1);
   delay(1000);
   solenoide_plantas.desligar();
   solenoide_caixa.ligar();
   delay(1000);
   bomba.ligar();
-  lcd.imprimir("B: 1 P: 0 C: 1", 0, 1);
+  lcd.imprimir("B: 1 C: 1 P: 0", 0, 1);
   delay(1000);
   unsigned long tempo = 0;
   while (tempo != 180) {
     tempo++;
     delay(1000);
+    if (estadoPararTudo) {
+      estadoPararTudo = false;
+      break;
+    }
   }
   bomba.desligar();
   delay(1000);
   solenoide_caixa.desligar();
   lcd.imprimir("agitado!");
-  lcd.imprimir("B: 0 P: 0 C: 0", 0, 1);
+  lcd.imprimir("B: 0 C: 0 P: 0", 0, 1);
   delay(2000);
 }
 
